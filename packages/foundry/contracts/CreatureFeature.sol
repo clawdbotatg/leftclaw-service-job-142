@@ -452,6 +452,25 @@ contract CreatureFeature is Ownable2Step, ReentrancyGuard {
 
         if (token == CLAWD) {
             // swap CLAWD -> USDC then route as USDC
+            // Apply slippage protection: quote expected USDC output, then apply slippageBps floor.
+            // This prevents MEV from extracting value from charity donations.
+            IQuoterV2.QuoteExactOutputSingleParams memory qParams = IQuoterV2.QuoteExactOutputSingleParams({
+                tokenIn: CLAWD,
+                tokenOut: USDC,
+                amount: 1_000_000, // dummy 1 USDC to get the rate
+                fee: CLAWD_USDC_FEE,
+                sqrtPriceLimitX96: 0
+            });
+            // Use a try/catch so a reverted quoter doesn't block charity routing
+            uint256 clawdPerUsdc;
+            try IQuoterV2(QUOTER_V2).quoteExactOutputSingle(qParams) returns (uint256 clawdIn, uint160, uint32, uint256) {
+                clawdPerUsdc = clawdIn;
+            } catch {
+                clawdPerUsdc = 0; // fallback: no slippage floor (tolerable)
+            }
+            uint256 amountOutMin = clawdPerUsdc > 0
+                ? (amount * 1_000_000 / clawdPerUsdc) * (BPS_DENOM - slippageBps) / BPS_DENOM
+                : 0;
             IERC20(CLAWD).forceApprove(SWAP_ROUTER, amount);
             uint256 usdcOut = ISwapRouter02(SWAP_ROUTER).exactInputSingle(
                 ISwapRouter02.ExactInputSingleParams({
@@ -460,7 +479,7 @@ contract CreatureFeature is Ownable2Step, ReentrancyGuard {
                     fee: CLAWD_USDC_FEE,
                     recipient: address(this),
                     amountIn: amount,
-                    amountOutMinimum: 0,
+                    amountOutMinimum: amountOutMin,
                     sqrtPriceLimitX96: 0
                 })
             );
@@ -595,6 +614,11 @@ contract CreatureFeature is Ownable2Step, ReentrancyGuard {
         return c == 0x20 || c == 0x09 || c == 0x0A || c == 0x0D;
     }
 
+    // Dynamic hidden check — accounts for flagThreshold changes that don't retroactively update struct field.
+    function _isHidden(Post storage p) internal view returns (bool) {
+        return p.flagCount >= flagThreshold;
+    }
+
     // ============ Crowns ============
     function submitFirstChampion(uint256 categoryId, uint256 postId, address payToken)
         external
@@ -608,7 +632,7 @@ contract CreatureFeature is Ownable2Step, ReentrancyGuard {
         Post storage p = posts[postId];
         require(p.id != 0, "post !exist");
         require(p.author == msg.sender, "!author");
-        require(!p.hidden, "post hidden");
+        require(!_isHidden(p), "post hidden");
 
         _processPayment(priceChallenge, payToken, msg.sender);
 
@@ -647,7 +671,7 @@ contract CreatureFeature is Ownable2Step, ReentrancyGuard {
         Post storage p = posts[postId];
         require(p.id != 0, "post !exist");
         require(p.author == msg.sender, "!author");
-        require(!p.hidden, "post hidden");
+        require(!_isHidden(p), "post hidden");
 
         _processPayment(priceChallenge, payToken, msg.sender);
 
@@ -782,7 +806,7 @@ contract CreatureFeature is Ownable2Step, ReentrancyGuard {
 
         Post storage p = posts[postId];
         require(p.id != 0, "post !exist");
-        require(!p.hidden, "post hidden");
+        require(!_isHidden(p), "post hidden");
 
         // floor in payToken
         uint256 floorAmount = _quote(priceSpotlightFloor, payToken);
