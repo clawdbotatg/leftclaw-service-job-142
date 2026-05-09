@@ -1,6 +1,6 @@
 # Creature Feature 🐾
 
-**Live URL:** https://bafybeiak7m2vuymjxckmex2eogcy44ic2o4eaftc2wnwk5ft3atyr7plby.ipfs.community.bgipfs.com/
+**Live URL:** https://bafybeifgbirlzntibpo633boooan3lk54i3tlyisdp5mlk5za2xz4arut4.ipfs.community.bgipfs.com/
 
 An onchain wildlife crown game built on Base. Wildlife observers, pet lovers, and artists compete for "Crowns" in king-of-the-hill contests. Every interaction automatically burns CLAWD, funds the CLAWD builders fund, and donates to WWF via Endaoment.
 

@@ -1,7 +1,7 @@
 # Deployment
 
-**Live URL:** https://bafybeiak7m2vuymjxckmex2eogcy44ic2o4eaftc2wnwk5ft3atyr7plby.ipfs.community.bgipfs.com/
-**CID:** bafybeiak7m2vuymjxckmex2eogcy44ic2o4eaftc2wnwk5ft3atyr7plby
+**Live URL:** https://bafybeifgbirlzntibpo633boooan3lk54i3tlyisdp5mlk5za2xz4arut4.ipfs.community.bgipfs.com/
+**CID:** bafybeifgbirlzntibpo633boooan3lk54i3tlyisdp5mlk5za2xz4arut4
 **Deployed:** 2026-05-09
 
 Static export uploaded to BGIPFS. The CID is content-addressed: every byte of
