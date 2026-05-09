@@ -6,8 +6,9 @@ import "~~/styles/globals.css";
 import { getMetadata } from "~~/utils/scaffold-eth/getMetadata";
 
 export const metadata = getMetadata({
-  title: "Scaffold-ETH 2 App",
-  description: "Built with 🏗 Scaffold-ETH 2",
+  title: "Creature Feature",
+  description:
+    "Wildlife crown game on Base — share wild sightings, pets, and art. Compete for crowns. Every interaction funds WWF via Endaoment.",
 });
 
 const ScaffoldEthApp = ({ children }: { children: React.ReactNode }) => {
